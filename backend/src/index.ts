@@ -14,8 +14,22 @@ dotenv.config()
 async function initDB() {
   const schemaPath = path.join(__dirname, 'db', 'schema.sql')
   const schema = fs.readFileSync(schemaPath, 'utf8')
-  await pool.query(schema)
-  console.log('Database schema initialized')
+  const maxRetries = 10
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      await pool.query(schema)
+      console.log('Database schema initialized')
+      return
+    } catch (err) {
+      if (i < maxRetries - 1) {
+        console.log(`DB init attempt ${i + 1} failed, retrying in 3s...`)
+        await delay(3000)
+      } else {
+        throw err
+      }
+    }
+  }
 }
 
 const app = express()
@@ -59,16 +73,13 @@ app.get('/api/tags', async (_req: Request, res: Response) => {
   }
 })
 
-// Start server
-initDB()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`)
-    })
-  })
-  .catch((err) => {
-    console.error('Failed to initialize database:', err)
+// Start server immediately so health checks pass, then init DB in background
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`)
+  initDB().catch((err) => {
+    console.error('Failed to initialize database, exiting:', err)
     process.exit(1)
   })
+})
 
 export default app
