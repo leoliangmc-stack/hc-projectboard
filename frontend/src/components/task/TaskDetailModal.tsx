@@ -30,7 +30,7 @@ export function TaskDetailModal({ card, onClose, onUpdate, onDelete }: TaskDetai
   const [projectAddress, setProjectAddress] = useState(card.project_address ?? '')
   const [description, setDescription] = useState(card.description ?? '')
   const [priority, setPriority] = useState(card.priority)
-  const [dueDate, setDueDate] = useState(card.due_date ?? '')
+  const [dueDate, setDueDate] = useState(card.due_date ? card.due_date.split('T')[0] : '')
   const [allTags, setAllTags] = useState<Tag[]>([])
   const [allUsers, setAllUsers] = useState<User[]>([])
   const [currentTags, setCurrentTags] = useState<Tag[]>(card.tags)

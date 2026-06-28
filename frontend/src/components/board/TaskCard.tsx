@@ -5,7 +5,7 @@ import type { Card } from '@/lib/types'
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 function fmtDate(dateStr: string) {
-  const [, m, d] = dateStr.split('-').map(Number)
+  const [, m, d] = dateStr.split('T')[0].split('-').map(Number)
   return `${d} ${MONTHS[m - 1]}`
 }
 
