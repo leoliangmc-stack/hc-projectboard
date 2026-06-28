@@ -3,6 +3,12 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import type { Card } from '@/lib/types'
 
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+function fmtDate(dateStr: string) {
+  const [, m, d] = dateStr.split('-').map(Number)
+  return `${d} ${MONTHS[m - 1]}`
+}
+
 const PRIORITY_DOT: Record<string, string> = {
   urgent: 'bg-red-500',
   high:   'bg-orange-400',
@@ -119,7 +125,7 @@ export function TaskCard({ card, onClick, isDragging }: TaskCardProps) {
               <path d="M4 1v2M8 1v2M1 5h10" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
             </svg>
             <span className={`text-[11px] font-medium ${isOverdue ? 'text-red-400' : 'text-zinc-500'}`}>
-              {new Date(card.due_date).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}
+              {fmtDate(card.due_date)}
             </span>
           </div>
         ) : <span />}

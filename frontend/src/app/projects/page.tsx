@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import type { Project } from '@/lib/types'
@@ -18,6 +19,7 @@ export default function BoardsPage() {
   const [newName, setNewName] = useState('')
   const [newDesc, setNewDesc] = useState('')
   const [creating, setCreating] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     api.projects.list()
@@ -40,10 +42,11 @@ export default function BoardsPage() {
     setCreating(true)
     try {
       const project = await api.projects.create({ name: newName.trim(), description: newDesc.trim() || undefined })
-      setProjects(prev => [project, ...prev])
       setShowNew(false)
       setNewName('')
       setNewDesc('')
+      setProjects(prev => [project, ...prev])
+      router.refresh()
     } catch {
       alert('Failed to create board — is the backend running?')
     } finally {

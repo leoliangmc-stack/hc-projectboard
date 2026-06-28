@@ -43,10 +43,20 @@ export const api = {
   },
   tags: {
     list: () => request<import('./types').Tag[]>('/tags'),
+    create: (data: { name: string; color: string }) =>
+      request<import('./types').Tag>('/tags', { method: 'POST', body: JSON.stringify(data) }),
+    update: (id: number, data: { name?: string; color?: string }) =>
+      request<import('./types').Tag>(`/tags/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    remove: (id: number) => request<void>(`/tags/${id}`, { method: 'DELETE' }),
   },
   users: {
     list: () => request<import('./types').User[]>('/users'),
     stats: () => request<import('./types').UserStats[]>('/users/stats'),
     cards: (id: number) => request<import('./types').UserCard[]>(`/users/${id}/cards`),
+    create: (data: { name: string; email: string; avatar: string }) =>
+      request<import('./types').User>('/users', { method: 'POST', body: JSON.stringify(data) }),
+    update: (id: number, data: Partial<{ name: string; email: string; avatar: string }>) =>
+      request<import('./types').User>(`/users/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    remove: (id: number) => request<void>(`/users/${id}`, { method: 'DELETE' }),
   },
 }

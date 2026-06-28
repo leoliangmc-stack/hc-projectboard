@@ -8,6 +8,7 @@ import projectsRouter from './routes/projects'
 import cardsRouter from './routes/cards'
 import listsRouter from './routes/lists'
 import usersRouter from './routes/users'
+import tagsRouter from './routes/tags'
 
 dotenv.config()
 
@@ -62,16 +63,7 @@ app.use('/api/cards', cardsRouter)
 app.use('/api/lists', listsRouter)
 app.use('/api/users', usersRouter)
 
-// GET /api/tags
-app.get('/api/tags', async (_req: Request, res: Response) => {
-  try {
-    const result = await pool.query('SELECT * FROM tags ORDER BY name')
-    res.json(result.rows)
-  } catch (err) {
-    console.error('GET /api/tags error:', err)
-    res.status(500).json({ error: 'Internal server error' })
-  }
-})
+app.use('/api/tags', tagsRouter)
 
 // Start server immediately so health checks pass, then init DB in background
 app.listen(PORT, () => {
