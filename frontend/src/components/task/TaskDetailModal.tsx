@@ -172,7 +172,7 @@ export function TaskDetailModal({ card, onClose, onUpdate, onDelete }: TaskDetai
           <input
             autoFocus
             value={title}
-            onChange={e => { setTitle(e.target.value); markDirty() }}
+            onChange={e => { setTitle(e.target.value); stateRef.current.title = e.target.value; markDirty() }}
             className="text-xl font-semibold bg-transparent border-none outline-none text-white w-full placeholder-zinc-600 focus:ring-0"
             placeholder="Project title"
           />
@@ -187,7 +187,7 @@ export function TaskDetailModal({ card, onClose, onUpdate, onDelete }: TaskDetai
               <label className="text-xs text-zinc-500 mb-1.5 block font-medium uppercase tracking-wide">Job Number</label>
               <input
                 value={jobNumber}
-                onChange={e => { setJobNumber(e.target.value); markDirty() }}
+                onChange={e => { setJobNumber(e.target.value); stateRef.current.jobNumber = e.target.value; markDirty() }}
                 placeholder="e.g. HC-2024-0542"
                 className="w-full bg-[#1f1f1f] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 outline-none font-mono focus:border-white/20 transition-colors"
               />
@@ -196,7 +196,7 @@ export function TaskDetailModal({ card, onClose, onUpdate, onDelete }: TaskDetai
               <label className="text-xs text-zinc-500 mb-1.5 block font-medium uppercase tracking-wide">Project Address</label>
               <input
                 value={projectAddress}
-                onChange={e => { setProjectAddress(e.target.value); markDirty() }}
+                onChange={e => { setProjectAddress(e.target.value); stateRef.current.projectAddress = e.target.value; markDirty() }}
                 placeholder="Street address"
                 className="w-full bg-[#1f1f1f] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 outline-none focus:border-white/20 transition-colors"
               />
@@ -211,7 +211,7 @@ export function TaskDetailModal({ card, onClose, onUpdate, onDelete }: TaskDetai
                 {PRIORITY_OPTIONS.map(p => (
                   <button
                     key={p}
-                    onClick={() => { setPriority(p); markDirty() }}
+                    onClick={() => { setPriority(p); stateRef.current.priority = p; markDirty() }}
                     className={`text-[11px] font-medium px-2.5 py-1 rounded border transition-all ${
                       priority === p ? PRIORITY_STYLES[p] : 'border-white/[0.08] text-zinc-500 hover:border-white/[0.15] hover:text-zinc-300'
                     }`}
@@ -226,7 +226,7 @@ export function TaskDetailModal({ card, onClose, onUpdate, onDelete }: TaskDetai
               <input
                 type="date"
                 value={dueDate}
-                onChange={e => { setDueDate(e.target.value); markDirty() }}
+                onChange={e => { setDueDate(e.target.value); stateRef.current.dueDate = e.target.value; markDirty() }}
                 className="w-full bg-[#1f1f1f] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-zinc-200 outline-none focus:border-white/20 transition-colors"
               />
             </div>
@@ -237,7 +237,7 @@ export function TaskDetailModal({ card, onClose, onUpdate, onDelete }: TaskDetai
             <label className="text-xs text-zinc-500 mb-1.5 block font-medium uppercase tracking-wide">Description</label>
             <textarea
               value={description}
-              onChange={e => { setDescription(e.target.value); markDirty() }}
+              onChange={e => { setDescription(e.target.value); stateRef.current.description = e.target.value; markDirty() }}
               rows={3}
               placeholder="Add a description..."
               className="w-full bg-[#1f1f1f] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-zinc-200 placeholder-zinc-600 outline-none resize-none focus:border-white/20 transition-colors"
