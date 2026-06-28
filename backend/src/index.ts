@@ -23,7 +23,7 @@ async function initDB() {
       return
     } catch (err) {
       if (i < maxRetries - 1) {
-        console.log(`DB init attempt ${i + 1} failed, retrying in 3s...`)
+        console.log(`DB init attempt ${i + 1} failed: ${(err as Error).message}, retrying in 3s...`)
         await delay(3000)
       } else {
         throw err
