@@ -37,6 +37,9 @@ export function TaskDetailModal({ card, onClose, onUpdate, onDelete }: TaskDetai
   const [currentAssignees, setCurrentAssignees] = useState<User[]>(card.assignees)
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
   const [dirty, setDirty] = useState(false)
+  const isDirtyRef = useRef(false)
+  const [tagsLoaded, setTagsLoaded] = useState(false)
+  const [usersLoaded, setUsersLoaded] = useState(false)
   const [showTagManager, setShowTagManager] = useState(false)
   const [editingTagId, setEditingTagId] = useState<number | null>(null)
   const [editingTagName, setEditingTagName] = useState('')
@@ -48,8 +51,8 @@ export function TaskDetailModal({ card, onClose, onUpdate, onDelete }: TaskDetai
   stateRef.current = { title, jobNumber, projectAddress, description, priority, dueDate, currentTags, currentAssignees }
 
   useEffect(() => {
-    api.tags.list().then(setAllTags).catch(() => {})
-    api.users.list().then(setAllUsers).catch(() => {})
+    api.tags.list().then(t => { setAllTags(t); setTagsLoaded(true) }).catch(() => setTagsLoaded(true))
+    api.users.list().then(u => { setAllUsers(u); setUsersLoaded(true) }).catch(() => setUsersLoaded(true))
   }, [])
 
   const performSave = useCallback(async () => {
@@ -73,9 +76,11 @@ export function TaskDetailModal({ card, onClose, onUpdate, onDelete }: TaskDetai
     }
   }, [card.id, onUpdate])
 
+  function markDirty() { markDirty(); isDirtyRef.current = true }
+
   // Save on close if there are unsaved changes
   async function handleClose() {
-    if (dirty) await performSave()
+    if (isDirtyRef.current) await performSave()
     onClose()
   }
 
@@ -167,7 +172,7 @@ export function TaskDetailModal({ card, onClose, onUpdate, onDelete }: TaskDetai
           <input
             autoFocus
             value={title}
-            onChange={e => { setTitle(e.target.value); setDirty(true) }}
+            onChange={e => { setTitle(e.target.value); markDirty() }}
             className="text-xl font-semibold bg-transparent border-none outline-none text-white w-full placeholder-zinc-600 focus:ring-0"
             placeholder="Project title"
           />
@@ -182,7 +187,7 @@ export function TaskDetailModal({ card, onClose, onUpdate, onDelete }: TaskDetai
               <label className="text-xs text-zinc-500 mb-1.5 block font-medium uppercase tracking-wide">Job Number</label>
               <input
                 value={jobNumber}
-                onChange={e => { setJobNumber(e.target.value); setDirty(true) }}
+                onChange={e => { setJobNumber(e.target.value); markDirty() }}
                 placeholder="e.g. HC-2024-0542"
                 className="w-full bg-[#1f1f1f] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 outline-none font-mono focus:border-white/20 transition-colors"
               />
@@ -191,7 +196,7 @@ export function TaskDetailModal({ card, onClose, onUpdate, onDelete }: TaskDetai
               <label className="text-xs text-zinc-500 mb-1.5 block font-medium uppercase tracking-wide">Project Address</label>
               <input
                 value={projectAddress}
-                onChange={e => { setProjectAddress(e.target.value); setDirty(true) }}
+                onChange={e => { setProjectAddress(e.target.value); markDirty() }}
                 placeholder="Street address"
                 className="w-full bg-[#1f1f1f] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 outline-none focus:border-white/20 transition-colors"
               />
@@ -206,7 +211,7 @@ export function TaskDetailModal({ card, onClose, onUpdate, onDelete }: TaskDetai
                 {PRIORITY_OPTIONS.map(p => (
                   <button
                     key={p}
-                    onClick={() => { setPriority(p); setDirty(true) }}
+                    onClick={() => { setPriority(p); markDirty() }}
                     className={`text-[11px] font-medium px-2.5 py-1 rounded border transition-all ${
                       priority === p ? PRIORITY_STYLES[p] : 'border-white/[0.08] text-zinc-500 hover:border-white/[0.15] hover:text-zinc-300'
                     }`}
@@ -221,7 +226,7 @@ export function TaskDetailModal({ card, onClose, onUpdate, onDelete }: TaskDetai
               <input
                 type="date"
                 value={dueDate}
-                onChange={e => { setDueDate(e.target.value); setDirty(true) }}
+                onChange={e => { setDueDate(e.target.value); markDirty() }}
                 className="w-full bg-[#1f1f1f] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-zinc-200 outline-none focus:border-white/20 transition-colors"
               />
             </div>
@@ -232,7 +237,7 @@ export function TaskDetailModal({ card, onClose, onUpdate, onDelete }: TaskDetai
             <label className="text-xs text-zinc-500 mb-1.5 block font-medium uppercase tracking-wide">Description</label>
             <textarea
               value={description}
-              onChange={e => { setDescription(e.target.value); setDirty(true) }}
+              onChange={e => { setDescription(e.target.value); markDirty() }}
               rows={3}
               placeholder="Add a description..."
               className="w-full bg-[#1f1f1f] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-zinc-200 placeholder-zinc-600 outline-none resize-none focus:border-white/20 transition-colors"
@@ -242,8 +247,10 @@ export function TaskDetailModal({ card, onClose, onUpdate, onDelete }: TaskDetai
           {/* Assignees */}
           <div>
             <label className="text-xs text-zinc-500 mb-2 block font-medium uppercase tracking-wide">Assignees</label>
-            {allUsers.length === 0 ? (
+            {!usersLoaded ? (
               <p className="text-xs text-zinc-600">Loading...</p>
+            ) : allUsers.length === 0 ? (
+              <p className="text-xs text-zinc-600">No team members yet. Add members in the Team page.</p>
             ) : (
               <div className="flex flex-wrap gap-2">
                 {allUsers.map(user => {
@@ -280,10 +287,13 @@ export function TaskDetailModal({ card, onClose, onUpdate, onDelete }: TaskDetai
                 {showTagManager ? 'Done' : 'Manage'}
               </button>
             </div>
-            {allTags.length === 0 ? (
+            {!tagsLoaded ? (
               <p className="text-xs text-zinc-600">Loading...</p>
             ) : (
               <>
+                {allTags.length === 0 && !showTagManager && (
+                  <p className="text-xs text-zinc-600 mb-2">No tags yet. Click <span className="text-zinc-400">Manage</span> to create one.</p>
+                )}
                 <div className="flex flex-wrap gap-2">
                   {allTags.map(tag => {
                     const active = currentTags.some(t => t.id === tag.id)
