@@ -76,7 +76,7 @@ export function TaskDetailModal({ card, onClose, onUpdate, onDelete }: TaskDetai
     }
   }, [card.id, onUpdate])
 
-  function markDirty() { markDirty(); isDirtyRef.current = true }
+  function markDirty() { setDirty(true); isDirtyRef.current = true }
 
   // Save on close if there are unsaved changes
   async function handleClose() {
