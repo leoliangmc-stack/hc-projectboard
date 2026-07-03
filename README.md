@@ -1,66 +1,66 @@
 # hc ProjectBoard
 
-一个类 Trello 的项目管理看板工具，支持多项目、拖拽式任务管理、团队协作。
+A Trello-like project management board with multi-project support, drag-and-drop task management, and team collaboration.
 
-## 技术栈
+## Tech Stack
 
-- **前端**：Next.js 16 (App Router) + React 19 + TypeScript + Tailwind CSS 4 + shadcn/ui + dnd-kit（拖拽）
-- **后端**：Node.js + Express + TypeScript
-- **数据库**：PostgreSQL
-- **部署**：Vercel（前后端同仓库多服务部署）
+- **Frontend**: Next.js 16 (App Router) + React 19 + TypeScript + Tailwind CSS 4 + shadcn/ui + dnd-kit (drag and drop)
+- **Backend**: Node.js + Express + TypeScript
+- **Database**: PostgreSQL
+- **Deployment**: Vercel (frontend + backend as multi-service in one repo)
 
-## 功能
+## Features
 
-- 项目（Project）管理：创建、归档、完成状态
-- 看板列表（List）与卡片（Card）的拖拽排序
-- 卡片属性：优先级、截止日期、工单号、项目地址、标签、负责人、归档
-- 标签（Tag）管理
-- 团队与成员（User / Team）管理
-- 活动记录（Activity）
+- Project management: create, archive, complete status
+- Drag-and-drop lists and cards on the board
+- Card details: priority, due date, job number, project address, tags, assignees, archive
+- Tag management
+- Team and user management
+- Activity log
 
-## 目录结构
+## Project Structure
 
 ```
 .
-├── frontend/   # Next.js 前端
+├── frontend/   # Next.js frontend
 │   └── src/
-│       ├── app/          # 页面路由（projects、team、activity）
-│       ├── components/   # UI 组件（board、task、layout、ui）
+│       ├── app/          # Routes (projects, team, activity)
+│       ├── components/   # UI components (board, task, layout, ui)
 │       └── lib/
-├── backend/    # Express 后端
+├── backend/    # Express backend
 │   └── src/
 │       ├── routes/       # projects / lists / cards / tags / users
-│       ├── db/           # 数据库连接与 schema
-│       └── seed/         # 种子数据脚本
+│       ├── db/           # DB connection and schema
+│       └── seed/         # Seed data script
 ├── docs/
-└── vercel.json # 多服务部署配置（frontend + backend）
+└── vercel.json # Multi-service deployment config (frontend + backend)
 ```
 
-## 本地开发
+## Local Development
 
-### 环境要求
+### Prerequisites
 
 - Node.js 18+
 - PostgreSQL
 
-### 后端
+### Backend
 
 ```bash
 cd backend
-cp .env.example .env   # 配置 DATABASE_URL、PORT 等
+cp .env.example .env   # configure DATABASE_URL, PORT, etc.
 npm install
-npm run dev             # 启动开发服务器（默认 3001 端口）
-npm run seed             # 可选：写入种子数据
+npm run dev              # starts dev server (default port 3001)
+npm run seed              # optional: load seed data
 ```
 
-### 前端
+### Frontend
 
 ```bash
 cd frontend
 npm install
-npm run dev              # 启动开发服务器（默认 3000 端口）
+npm run dev               # starts dev server (default port 3000)
 ```
 
-## 部署
+## Deployment
 
-项目通过 `vercel.json` 配置为前后端同仓库的多服务部署：`/api/backend/*` 请求转发到后端服务，其余请求转发到前端服务。
+The project is configured in `vercel.json` as a multi-service deployment in a single repo: requests to `/api/backend/*` are routed to the backend service, everything else goes to the frontend service.
