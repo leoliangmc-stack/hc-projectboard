@@ -1,9 +1,9 @@
 'use client'
-import { useState, type Dispatch } from 'react'
+import { useRef, useState, type Dispatch } from 'react'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { createId, PRIORITIES, TAG_COLORS, type BoardAction } from '@/lib/board'
 import type { Card, Column, Member, Tag } from '@/lib/types'
-import { cn } from '@/lib/utils'
+import { cn, isTouchScreen } from '@/lib/utils'
 import { Avatar, capitalize, PRIORITY_STYLES } from './ProjectCard'
 
 interface CardDetailModalProps {
@@ -17,8 +17,10 @@ interface CardDetailModalProps {
 }
 
 const LABEL = 'mb-1.5 block text-xs font-medium tracking-wide text-zinc-500 uppercase'
+// Text fields switch to 16px text on touch screens (`pointer-coarse:text-base`), here and across
+// the board: iOS Safari zooms the page in when a field with smaller text is focused.
 const FIELD =
-  'w-full rounded-lg border border-white/[0.08] bg-[#1f1f1f] px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 outline-none transition-colors focus:border-white/20'
+  'tap-target w-full rounded-lg border border-white/[0.08] bg-[#1f1f1f] px-3 py-2 text-sm pointer-coarse:text-base text-zinc-200 placeholder-zinc-600 outline-none transition-colors focus:border-white/20'
 
 export function CardDetailModal({ card, columnId, columns, tags, members, dispatch, onClose }: CardDetailModalProps) {
   // Title and code keep a local draft so the input can be cleared while typing;
@@ -26,6 +28,8 @@ export function CardDetailModal({ card, columnId, columns, tags, members, dispat
   const [title, setTitle] = useState(card.title)
   const [code, setCode] = useState(card.code)
   const [showTagManager, setShowTagManager] = useState(false)
+  const popupRef = useRef<HTMLDivElement>(null)
+  const titleRef = useRef<HTMLInputElement>(null)
 
   function update(changes: Partial<Omit<Card, 'id'>>) {
     dispatch({ type: 'updateCard', cardId: card.id, changes })
@@ -49,10 +53,17 @@ export function CardDetailModal({ card, columnId, columns, tags, members, dispat
 
   return (
     <Dialog open onOpenChange={open => !open && onClose()}>
-      <DialogContent className="gap-0 overflow-hidden border-white/[0.08] bg-[#141414] p-0 text-white sm:max-w-2xl">
+      <DialogContent
+        ref={popupRef}
+        // With a mouse or keyboard the title is ready to edit. On touch screens the dialog itself
+        // takes focus, so opening a card doesn't bring up the on-screen keyboard over it.
+        initialFocus={() => (isTouchScreen() ? popupRef.current : titleRef.current)}
+        // Never taller than the screen: the field list shrinks and scrolls, header and footer stay.
+        className="flex max-h-[calc(100dvh-2rem)] flex-col gap-0 overflow-hidden border-white/[0.08] bg-[#141414] p-0 text-white sm:max-w-2xl"
+      >
         <DialogTitle className="sr-only">Card details</DialogTitle>
 
-        <div className="border-b border-white/[0.06] px-6 pt-6 pb-4">
+        <div className="shrink-0 border-b border-white/[0.06] px-6 pt-6 pb-4">
           <div className="mb-3 flex flex-wrap items-center gap-2 pr-8">
             <input
               aria-label="Project code"
@@ -62,7 +73,7 @@ export function CardDetailModal({ card, columnId, columns, tags, members, dispat
                 update({ code: e.target.value.trim() })
               }}
               placeholder="PRJ-000"
-              className="w-28 rounded bg-white/[0.05] px-2 py-1 font-mono text-xs text-zinc-300 placeholder-zinc-600 outline-none focus:ring-1 focus:ring-white/20"
+              className="tap-target w-28 rounded bg-white/[0.05] px-2 py-1 font-mono text-xs text-zinc-300 placeholder-zinc-600 pointer-coarse:text-base outline-none focus:ring-1 focus:ring-white/20"
             />
             <label className="flex items-center gap-1.5 text-xs text-zinc-500">
               in
@@ -70,7 +81,7 @@ export function CardDetailModal({ card, columnId, columns, tags, members, dispat
                 aria-label="Column"
                 value={columnId}
                 onChange={e => moveTo(e.target.value)}
-                className="rounded border border-white/[0.08] bg-[#1f1f1f] px-2 py-1 text-xs text-zinc-200 outline-none focus:border-white/20"
+                className="tap-target rounded border border-white/[0.08] bg-[#1f1f1f] px-2 py-1 text-xs text-zinc-200 outline-none focus:border-white/20 pointer-coarse:text-base"
               >
                 {columns.map(column => (
                   <option key={column.id} value={column.id}>
@@ -81,7 +92,7 @@ export function CardDetailModal({ card, columnId, columns, tags, members, dispat
             </label>
           </div>
           <input
-            autoFocus
+            ref={titleRef}
             aria-label="Title"
             value={title}
             onChange={e => {
@@ -89,12 +100,12 @@ export function CardDetailModal({ card, columnId, columns, tags, members, dispat
               const trimmed = e.target.value.trim()
               if (trimmed) update({ title: trimmed })
             }}
-            className="w-full border-none bg-transparent text-xl font-semibold text-white placeholder-zinc-600 outline-none"
+            className="tap-target w-full border-none bg-transparent text-xl font-semibold text-white placeholder-zinc-600 outline-none"
             placeholder="Project title"
           />
         </div>
 
-        <div className="max-h-[60vh] space-y-5 overflow-y-auto px-6 py-5">
+        <div className="max-h-[60vh] min-h-0 space-y-5 overflow-y-auto px-6 py-5">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <span className={LABEL}>Priority</span>
@@ -105,7 +116,7 @@ export function CardDetailModal({ card, columnId, columns, tags, members, dispat
                     onClick={() => update({ priority: p })}
                     aria-pressed={card.priority === p}
                     className={cn(
-                      'rounded border px-2.5 py-1 text-[11px] font-medium transition-all',
+                      'tap-target rounded border px-2.5 py-1 text-[11px] font-medium transition-all',
                       card.priority === p
                         ? PRIORITY_STYLES[p].chip
                         : 'border-white/[0.08] text-zinc-500 hover:border-white/[0.15] hover:text-zinc-300',
@@ -168,7 +179,7 @@ export function CardDetailModal({ card, columnId, columns, tags, members, dispat
                     onClick={() => update({ assigneeIds: toggle(card.assigneeIds, member.id) })}
                     aria-pressed={active}
                     className={cn(
-                      'flex items-center gap-2 rounded-full border py-1 pr-3 pl-1 text-sm transition-all',
+                      'tap-target flex items-center gap-2 rounded-full border py-1 pr-3 pl-1 text-sm transition-all',
                       active
                         ? 'border-blue-500/40 bg-blue-600/20 text-blue-200'
                         : 'border-white/[0.08] bg-white/[0.03] text-zinc-400 hover:border-white/[0.15] hover:text-zinc-200',
@@ -187,7 +198,7 @@ export function CardDetailModal({ card, columnId, columns, tags, members, dispat
               <span className={cn(LABEL, 'mb-0')}>Tags</span>
               <button
                 onClick={() => setShowTagManager(v => !v)}
-                className="rounded border border-transparent px-2 py-0.5 text-xs text-zinc-500 transition-colors hover:border-white/[0.08] hover:text-zinc-300"
+                className="tap-target rounded border border-transparent px-2 py-0.5 text-xs text-zinc-500 transition-colors hover:border-white/[0.08] hover:text-zinc-300"
               >
                 {showTagManager ? 'Done' : 'Manage'}
               </button>
@@ -211,7 +222,7 @@ export function CardDetailModal({ card, columnId, columns, tags, members, dispat
                         : undefined
                     }
                     className={cn(
-                      'rounded-full border px-3 py-1 text-sm transition-all',
+                      'tap-target rounded-full border px-3 py-1 text-sm transition-all',
                       !active &&
                         'border-white/[0.08] bg-white/[0.03] text-zinc-400 hover:border-white/[0.15] hover:text-zinc-200',
                     )}
@@ -225,13 +236,13 @@ export function CardDetailModal({ card, columnId, columns, tags, members, dispat
           </div>
         </div>
 
-        <div className="flex items-center justify-between border-t border-white/[0.06] bg-[#111111]/50 px-6 py-4">
-          <button onClick={handleDelete} className="text-sm text-zinc-500 transition-colors hover:text-red-400">
+        <div className="flex shrink-0 items-center justify-between border-t border-white/[0.06] bg-[#111111]/50 px-6 py-4">
+          <button onClick={handleDelete} className="tap-target text-sm text-zinc-500 transition-colors hover:text-red-400">
             Delete card
           </button>
           <button
             onClick={onClose}
-            className="rounded-lg bg-white/[0.08] px-4 py-1.5 text-sm font-medium text-zinc-200 transition-colors hover:bg-white/[0.12]"
+            className="tap-target rounded-lg bg-white/[0.08] px-4 py-1.5 text-sm font-medium text-zinc-200 transition-colors hover:bg-white/[0.12]"
           >
             Done
           </button>
@@ -280,22 +291,22 @@ function TagManager({ tags, dispatch }: { tags: Tag[]; dispatch: Dispatch<BoardA
                   if (e.key === 'Enter') saveEdit()
                   if (e.key === 'Escape') setEditing(null)
                 }}
-                className="flex-1 rounded border border-white/[0.12] bg-[#1f1f1f] px-2 py-0.5 text-xs text-zinc-200 outline-none focus:border-white/25"
+                className="tap-target flex-1 rounded border border-white/[0.12] bg-[#1f1f1f] px-2 py-0.5 text-xs text-zinc-200 outline-none focus:border-white/25 pointer-coarse:text-base"
               />
-              <button onClick={saveEdit} className="px-1.5 text-xs text-blue-400 hover:text-blue-300">
+              <button onClick={saveEdit} className="tap-target px-1.5 text-xs text-blue-400 hover:text-blue-300">
                 Save
               </button>
-              <button onClick={() => setEditing(null)} className="px-1.5 text-xs text-zinc-500 hover:text-zinc-300">
+              <button onClick={() => setEditing(null)} className="tap-target px-1.5 text-xs text-zinc-500 hover:text-zinc-300">
                 Cancel
               </button>
             </>
           ) : (
             <>
               <span className="flex-1 text-xs text-zinc-300">{tag.name}</span>
-              <div className="flex gap-1 opacity-0 transition-opacity group-hover/tag:opacity-100 focus-within:opacity-100">
+              <div className="flex gap-1 opacity-0 transition-opacity group-hover/tag:opacity-100 focus-within:opacity-100 pointer-coarse:opacity-100">
                 <button
                   onClick={() => setEditing({ id: tag.id, name: tag.name })}
-                  className="rounded p-1 text-zinc-500 hover:bg-white/[0.08] hover:text-zinc-200"
+                  className="tap-target flex items-center justify-center rounded p-1 text-zinc-500 hover:bg-white/[0.08] hover:text-zinc-200"
                   aria-label={`Rename tag ${tag.name}`}
                 >
                   <svg width="10" height="10" viewBox="0 0 12 12" fill="none" aria-hidden>
@@ -304,7 +315,7 @@ function TagManager({ tags, dispatch }: { tags: Tag[]; dispatch: Dispatch<BoardA
                 </button>
                 <button
                   onClick={() => deleteTag(tag)}
-                  className="rounded p-1 text-zinc-500 hover:bg-red-500/10 hover:text-red-400"
+                  className="tap-target flex items-center justify-center rounded p-1 text-zinc-500 hover:bg-red-500/10 hover:text-red-400"
                   aria-label={`Delete tag ${tag.name}`}
                 >
                   <svg width="10" height="10" viewBox="0 0 12 12" fill="none" aria-hidden>
@@ -332,24 +343,26 @@ function TagManager({ tags, dispatch }: { tags: Tag[]; dispatch: Dispatch<BoardA
             onChange={e => setNewName(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && createTag()}
             placeholder="Tag name"
-            className="flex-1 rounded border border-white/[0.08] bg-[#1f1f1f] px-2 py-1 text-xs text-zinc-200 placeholder-zinc-600 outline-none focus:border-white/20"
+            className="tap-target flex-1 rounded border border-white/[0.08] bg-[#1f1f1f] px-2 py-1 text-xs text-zinc-200 placeholder-zinc-600 outline-none focus:border-white/20 pointer-coarse:text-base"
           />
           <button
             onClick={createTag}
             disabled={!newName.trim()}
-            className="shrink-0 rounded bg-blue-600 px-2.5 py-1 text-xs font-medium text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40"
+            className="tap-target shrink-0 rounded bg-blue-600 px-2.5 py-1 text-xs font-medium text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40"
           >
             Add
           </button>
         </div>
-        <div className="mt-2 flex gap-1.5">
+        {/* Eight 44px circles don't fit a phone-width row, so on touch screens the swatches grow
+            slightly and an invisible ::before stretches each hit area to about 34×44px. */}
+        <div className="mt-2 flex flex-wrap gap-1.5 pointer-coarse:mt-3 pointer-coarse:gap-2.5">
           {TAG_COLORS.map(color => (
             <button
               key={color}
               onClick={() => setNewColor(color)}
               aria-label={`Colour ${color}`}
               aria-pressed={newColor === color}
-              className="h-5 w-5 shrink-0 rounded-full transition-transform hover:scale-110"
+              className="relative h-5 w-5 shrink-0 rounded-full transition-transform hover:scale-110 pointer-coarse:size-6 pointer-coarse:before:absolute pointer-coarse:before:-inset-x-[5px] pointer-coarse:before:-inset-y-2.5"
               style={{
                 backgroundColor: color,
                 outline: newColor === color ? `2px solid ${color}` : 'none',

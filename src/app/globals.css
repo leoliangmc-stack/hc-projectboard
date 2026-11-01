@@ -46,6 +46,17 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/*
+ * On touch screens, small controls grow to at least 44×44px, the minimum touch target
+ * recommended by Apple's HIG and WCAG 2.5.5. Mouse and trackpad layouts are unchanged.
+ */
+@utility tap-target {
+  @media (pointer: coarse) {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;

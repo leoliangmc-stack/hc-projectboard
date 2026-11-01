@@ -7,7 +7,7 @@ interface BoardHeaderProps {
 
 export function BoardHeader({ title, actions }: BoardHeaderProps) {
   return (
-    <header className="flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-white/[0.06] bg-[#0d0d0f] px-6 py-4">
+    <header className="flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-white/[0.06] bg-[#0d0d0f] px-6 py-4 pointer-coarse:gap-y-1 pointer-coarse:py-2">
       <div className="flex items-center gap-2.5">
         <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-600">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
