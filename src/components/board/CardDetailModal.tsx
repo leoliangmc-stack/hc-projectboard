@@ -17,8 +17,10 @@ interface CardDetailModalProps {
 }
 
 const LABEL = 'mb-1.5 block text-xs font-medium tracking-wide text-zinc-500 uppercase'
+// Text fields switch to 16px text on touch screens (`pointer-coarse:text-base`), here and across
+// the board: iOS Safari zooms the page in when a field with smaller text is focused.
 const FIELD =
-  'tap-target w-full rounded-lg border border-white/[0.08] bg-[#1f1f1f] px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 outline-none transition-colors focus:border-white/20'
+  'tap-target w-full rounded-lg border border-white/[0.08] bg-[#1f1f1f] px-3 py-2 text-sm pointer-coarse:text-base text-zinc-200 placeholder-zinc-600 outline-none transition-colors focus:border-white/20'
 
 export function CardDetailModal({ card, columnId, columns, tags, members, dispatch, onClose }: CardDetailModalProps) {
   // Title and code keep a local draft so the input can be cleared while typing;
@@ -71,7 +73,7 @@ export function CardDetailModal({ card, columnId, columns, tags, members, dispat
                 update({ code: e.target.value.trim() })
               }}
               placeholder="PRJ-000"
-              className="tap-target w-28 rounded bg-white/[0.05] px-2 py-1 font-mono text-xs text-zinc-300 placeholder-zinc-600 outline-none focus:ring-1 focus:ring-white/20"
+              className="tap-target w-28 rounded bg-white/[0.05] px-2 py-1 font-mono text-xs text-zinc-300 placeholder-zinc-600 pointer-coarse:text-base outline-none focus:ring-1 focus:ring-white/20"
             />
             <label className="flex items-center gap-1.5 text-xs text-zinc-500">
               in
@@ -79,7 +81,7 @@ export function CardDetailModal({ card, columnId, columns, tags, members, dispat
                 aria-label="Column"
                 value={columnId}
                 onChange={e => moveTo(e.target.value)}
-                className="tap-target rounded border border-white/[0.08] bg-[#1f1f1f] px-2 py-1 text-xs text-zinc-200 outline-none focus:border-white/20"
+                className="tap-target rounded border border-white/[0.08] bg-[#1f1f1f] px-2 py-1 text-xs text-zinc-200 outline-none focus:border-white/20 pointer-coarse:text-base"
               >
                 {columns.map(column => (
                   <option key={column.id} value={column.id}>
@@ -289,7 +291,7 @@ function TagManager({ tags, dispatch }: { tags: Tag[]; dispatch: Dispatch<BoardA
                   if (e.key === 'Enter') saveEdit()
                   if (e.key === 'Escape') setEditing(null)
                 }}
-                className="tap-target flex-1 rounded border border-white/[0.12] bg-[#1f1f1f] px-2 py-0.5 text-xs text-zinc-200 outline-none focus:border-white/25"
+                className="tap-target flex-1 rounded border border-white/[0.12] bg-[#1f1f1f] px-2 py-0.5 text-xs text-zinc-200 outline-none focus:border-white/25 pointer-coarse:text-base"
               />
               <button onClick={saveEdit} className="tap-target px-1.5 text-xs text-blue-400 hover:text-blue-300">
                 Save
@@ -341,7 +343,7 @@ function TagManager({ tags, dispatch }: { tags: Tag[]; dispatch: Dispatch<BoardA
             onChange={e => setNewName(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && createTag()}
             placeholder="Tag name"
-            className="tap-target flex-1 rounded border border-white/[0.08] bg-[#1f1f1f] px-2 py-1 text-xs text-zinc-200 placeholder-zinc-600 outline-none focus:border-white/20"
+            className="tap-target flex-1 rounded border border-white/[0.08] bg-[#1f1f1f] px-2 py-1 text-xs text-zinc-200 placeholder-zinc-600 outline-none focus:border-white/20 pointer-coarse:text-base"
           />
           <button
             onClick={createTag}

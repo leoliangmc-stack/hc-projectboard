@@ -69,7 +69,7 @@ export function KanbanColumn({
               if (e.key === 'Enter') commitName()
               if (e.key === 'Escape') setNameDraft(null)
             }}
-            className="tap-target w-full rounded border border-white/[0.15] bg-white/[0.06] px-2 py-0.5 text-sm font-medium text-zinc-200 outline-none"
+            className="tap-target w-full rounded border border-white/[0.15] bg-white/[0.06] px-2 py-0.5 text-sm font-medium text-zinc-200 outline-none pointer-coarse:text-base"
           />
         ) : (
           <>
@@ -150,7 +150,7 @@ export function KanbanColumn({
                 if (e.key === 'Escape') setCardDraft(null)
               }}
               placeholder="Project name…"
-              className="w-full resize-none bg-transparent text-sm text-zinc-200 placeholder-zinc-600 outline-none"
+              className="w-full resize-none bg-transparent text-sm text-zinc-200 placeholder-zinc-600 outline-none pointer-coarse:text-base"
               rows={2}
             />
             <div className="mt-2 flex gap-2">

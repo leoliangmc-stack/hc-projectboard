@@ -297,7 +297,7 @@ export function KanbanBoard() {
                   if (e.key === 'Escape') setColumnDraft(null)
                 }}
                 placeholder="Column name…"
-                className="tap-target mb-3 border-b border-white/[0.08] bg-transparent pb-2 text-sm text-zinc-200 placeholder-zinc-600 outline-none"
+                className="tap-target mb-3 border-b border-white/[0.08] bg-transparent pb-2 text-sm text-zinc-200 placeholder-zinc-600 outline-none pointer-coarse:text-base"
               />
               <div className="flex gap-2">
                 <button
