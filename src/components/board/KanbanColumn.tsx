@@ -50,6 +50,7 @@ export function KanbanColumn({
     <section
       ref={setNodeRef}
       aria-label={column.name}
+      data-column-id={column.id}
       className={cn(
         'group/col flex max-h-full w-72 shrink-0 flex-col rounded-xl border bg-white/[0.02] transition-colors',
         isOver ? 'border-blue-500/30 bg-blue-500/[0.03]' : 'border-white/[0.06]',
@@ -174,6 +175,7 @@ export function KanbanColumn({
       {cardDraft === null && (
         <button
           onClick={() => setCardDraft('')}
+          data-guide="add-card"
           className="mx-2 mb-2 flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-xs text-zinc-600 transition-colors hover:bg-white/[0.04] hover:text-zinc-300"
         >
           <span className="text-base leading-none">+</span> Add card

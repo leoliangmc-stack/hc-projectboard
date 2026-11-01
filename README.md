@@ -1,6 +1,6 @@
 # ProjectBoard
 
-A drag-and-drop kanban board for tracking projects. It runs entirely in the browser: there is no backend, and changes are saved to `localStorage`.
+A drag-and-drop kanban board for tracking projects. It runs entirely in the browser: there is no backend, and changes are saved to `localStorage`. The demo data is a pipeline of fictional civil infrastructure projects (roads and bridges, three waters, marine, earthworks) moving from tender to close-out.
 
 **Live demo: [leo-projectboard.vercel.app](https://leo-projectboard.vercel.app/)**
 
@@ -10,7 +10,8 @@ A drag-and-drop kanban board for tracking projects. It runs entirely in the brow
 
 - **Drag and drop:** move project cards between columns or reorder them within a column. Works with mouse, touch (press and hold), and keyboard.
 - **Keyboard accessible:** focus a card, press `Space` to pick it up, use the arrow keys to move it, then `Space`/`Enter` to drop or `Esc` to cancel. Screen readers announce each move.
-- **Project cards:** each card has a code, title, description, priority, due date (overdue and due-soon dates are highlighted), tags and assignees.
+- **Project cards:** each card has a code, title, location, description, priority, due date (overdue and due-soon dates are highlighted), tags and assignees.
+- **First-visit guide:** an animated hand shows new visitors how to drag a card into another column, open a card and add projects. It can be replayed any time with **Guide**.
 - **Inline editing:** rename the board and its columns, add and delete columns and cards, and create, rename or delete tags.
 - **Saved locally:** the board is saved in the browser, so it's still there after a reload. **Reset demo** restores the sample data.
 - **Responsive:** the dark UI also works on small screens.

@@ -12,7 +12,8 @@ describe('parseStoredBoard', () => {
     expect(parseStoredBoard(null)).toBeNull()
     expect(parseStoredBoard('not json')).toBeNull()
     expect(parseStoredBoard('null')).toBeNull()
-    expect(parseStoredBoard(JSON.stringify({ ...createSampleBoard(), version: 2 }))).toBeNull()
-    expect(parseStoredBoard(JSON.stringify({ version: 1, title: 'x', columns: [{}], tags: [], members: [] }))).toBeNull()
+    // Boards saved before the current schema version are discarded.
+    expect(parseStoredBoard(JSON.stringify({ ...createSampleBoard(), version: 1 }))).toBeNull()
+    expect(parseStoredBoard(JSON.stringify({ version: 2, title: 'x', columns: [{}], tags: [], members: [] }))).toBeNull()
   })
 })

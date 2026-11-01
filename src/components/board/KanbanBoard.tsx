@@ -1,5 +1,5 @@
 'use client'
-import { useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import {
   closestCorners,
   DndContext,
@@ -20,10 +20,12 @@ import { useBoard } from '@/hooks/useBoard'
 import { createCard, createId, findCard, nextCardCode } from '@/lib/board'
 import { toIsoDate } from '@/lib/dates'
 import { createSampleBoard } from '@/lib/sampleData'
+import { hasSeenGuide, markGuideSeen } from '@/lib/storage'
 import type { Board } from '@/lib/types'
 import { BoardHeader } from './BoardHeader'
 import { CardDetailModal } from './CardDetailModal'
 import { KanbanColumn } from './KanbanColumn'
+import { OnboardingGuide } from './OnboardingGuide'
 import { CardView } from './ProjectCard'
 
 const SCREEN_READER_INSTRUCTIONS =
@@ -37,6 +39,8 @@ export function KanbanBoard() {
   const [openCardId, setOpenCardId] = useState<string | null>(null)
   const [titleDraft, setTitleDraft] = useState<string | null>(null)
   const [columnDraft, setColumnDraft] = useState<string | null>(null)
+  // Shown automatically on the first visit; can be replayed from the header.
+  const [showGuide, setShowGuide] = useState(() => !hasSeenGuide())
 
   // Board as it was when the drag started, restored if the drag is cancelled.
   const dragSnapshot = useRef<Board | null>(null)
@@ -160,6 +164,11 @@ export function KanbanBoard() {
     setColumnDraft(null)
   }
 
+  const closeGuide = useCallback(() => {
+    markGuideSeen()
+    setShowGuide(false)
+  }, [])
+
   function resetBoard() {
     if (!confirm('Reset the board to the sample projects? Your changes will be lost.')) return
     setOpenCardId(null)
@@ -207,7 +216,18 @@ export function KanbanBoard() {
         }
         actions={
           <>
-            <span className="hidden text-xs text-zinc-600 md:inline">Changes are saved in this browser</span>
+            <span className="hidden text-xs text-zinc-600 lg:inline">Changes are saved in this browser</span>
+            <button
+              onClick={() => setShowGuide(true)}
+              className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-white/[0.15] hover:text-white"
+            >
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
+                <circle cx="6" cy="6" r="5.25" stroke="currentColor" strokeWidth="1.1" />
+                <path d="M4.6 4.7a1.45 1.45 0 0 1 2.8.45c0 .95-1.4 1.2-1.4 2.05" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
+                <circle cx="6" cy="8.85" r="0.6" fill="currentColor" />
+              </svg>
+              Guide
+            </button>
             <button
               onClick={resetBoard}
               className="rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-white/[0.15] hover:text-white"
@@ -299,6 +319,16 @@ export function KanbanBoard() {
           ) : null}
         </DragOverlay>
       </DndContext>
+
+      {showGuide && (
+        <OnboardingGuide
+          board={board}
+          tagsById={tagsById}
+          membersById={membersById}
+          today={today}
+          onClose={closeGuide}
+        />
+      )}
 
       {openCard && (
         <CardDetailModal

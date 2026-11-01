@@ -2,145 +2,160 @@ import { createCard, createId } from './board'
 import { addDays, toIsoDate } from './dates'
 import type { Board, Card, Column, Member, Priority, Tag } from './types'
 
+/*
+ * Demo data: a pipeline of civil infrastructure projects for a New Zealand contractor.
+ * All projects, codes and people are fictional.
+ */
+
 interface SampleCard {
   code: string
   title: string
+  location: string
   description?: string
   priority: Priority
-  /** Due date as an offset in days from the day the board is created. */
+  /** Due date (next milestone) as an offset in days from the day the board is created. */
   dueInDays?: number
   tags?: string[]
   assignees?: string[]
 }
 
 const TAGS: Record<string, Omit<Tag, 'id'>> = {
-  design: { name: 'Design', color: '#8b5cf6' },
-  frontend: { name: 'Frontend', color: '#3b82f6' },
-  backend: { name: 'Backend', color: '#14b8a6' },
-  research: { name: 'Research', color: '#f59e0b' },
-  marketing: { name: 'Marketing', color: '#ec4899' },
-  bug: { name: 'Bug', color: '#ef4444' },
+  roads: { name: 'Roads & Bridges', color: '#f59e0b' },
+  water: { name: 'Three Waters', color: '#3b82f6' },
+  marine: { name: 'Marine', color: '#14b8a6' },
+  earthworks: { name: 'Earthworks', color: '#f97316' },
+  maintenance: { name: 'Maintenance', color: '#8b5cf6' },
+  safety: { name: 'Health & Safety', color: '#ef4444' },
 }
 
 const MEMBERS: Record<string, Omit<Member, 'id'>> = {
-  alex: { name: 'Alex Kim', initials: 'AK', color: '#3b82f6' },
-  jordan: { name: 'Jordan Lee', initials: 'JL', color: '#10b981' },
-  sam: { name: 'Sam Patel', initials: 'SP', color: '#f97316' },
-  taylor: { name: 'Taylor Brooks', initials: 'TB', color: '#8b5cf6' },
+  hemi: { name: 'Hemi Walker', initials: 'HW', color: '#10b981' },
+  sophie: { name: 'Sophie Chen', initials: 'SC', color: '#3b82f6' },
+  liam: { name: "Liam O'Connor", initials: 'LO', color: '#f97316' },
+  priya: { name: 'Priya Nair', initials: 'PN', color: '#8b5cf6' },
 }
 
 const COLUMNS: { name: string; cards: SampleCard[] }[] = [
   {
-    name: 'Backlog',
+    name: 'Tendering',
     cards: [
       {
-        code: 'PRJ-118',
-        title: 'Customer feedback portal',
-        description: 'Collect feature requests and let customers vote on them.',
-        priority: 'low',
-        dueInDays: 30,
-        tags: ['research'],
-        assignees: ['jordan'],
-      },
-      {
-        code: 'PRJ-121',
-        title: 'Dark mode for the mobile app',
-        priority: 'medium',
-        tags: ['design', 'frontend'],
-      },
-      {
-        code: 'PRJ-124',
-        title: 'Partner integrations marketplace',
-        description: 'Scope a directory page for third-party integrations.',
-        priority: 'low',
-        dueInDays: 45,
-        tags: ['research', 'marketing'],
-      },
-    ],
-  },
-  {
-    name: 'To Do',
-    cards: [
-      {
-        code: 'PRJ-109',
-        title: 'Onboarding flow redesign',
-        description: 'Reduce the sign-up flow from five steps to three and add a progress indicator.',
-        priority: 'high',
-        dueInDays: 6,
-        tags: ['design'],
-        assignees: ['taylor', 'alex'],
-      },
-      {
-        code: 'PRJ-112',
-        title: 'Billing page accessibility audit',
-        priority: 'medium',
-        dueInDays: 12,
-        tags: ['frontend'],
-        assignees: ['sam'],
-      },
-    ],
-  },
-  {
-    name: 'In Progress',
-    cards: [
-      {
-        code: 'PRJ-104',
-        title: 'Marketing website relaunch',
-        description: 'New landing pages, pricing page and blog templates.',
-        priority: 'urgent',
-        dueInDays: 2,
-        tags: ['frontend', 'marketing'],
-        assignees: ['alex', 'taylor'],
-      },
-      {
-        code: 'PRJ-107',
-        title: 'Analytics dashboard',
-        description: 'Weekly active users, retention cohorts and revenue charts.',
+        code: 'PRJ-215',
+        title: 'Wharf extension and marine piling',
+        location: 'Nelson',
+        description: 'Tender for a 60 m wharf extension on steel tube piles with precast deck units.',
         priority: 'high',
         dueInDays: 9,
-        tags: ['frontend', 'backend'],
-        assignees: ['jordan'],
+        tags: ['marine'],
+        assignees: ['priya'],
       },
       {
-        code: 'PRJ-111',
-        title: 'Fix checkout timeout on slow networks',
+        code: 'PRJ-218',
+        title: 'Subdivision earthworks and services',
+        location: 'Hamilton, Waikato',
+        description: 'Bulk earthworks plus stormwater and wastewater reticulation for a 120-lot subdivision.',
+        priority: 'medium',
+        dueInDays: 21,
+        tags: ['earthworks', 'water'],
+        assignees: ['priya'],
+      },
+    ],
+  },
+  {
+    name: 'Pre-construction',
+    cards: [
+      {
+        code: 'PRJ-209',
+        title: 'Rural bridge replacement',
+        location: "Hawke's Bay",
+        description:
+          'Replace a single-lane timber bridge with a two-lane precast concrete bridge. Resource consent and traffic management plan needed before site establishment.',
+        priority: 'high',
+        dueInDays: 5,
+        tags: ['roads'],
+        assignees: ['hemi', 'sophie'],
+      },
+      {
+        code: 'PRJ-211',
+        title: 'Wastewater pump station upgrade',
+        location: 'Christchurch, Canterbury',
+        description: 'New pumps, rising main and controls, with temporary bypass pumping to keep the network running.',
+        priority: 'medium',
+        dueInDays: 14,
+        tags: ['water'],
+        assignees: ['liam'],
+      },
+    ],
+  },
+  {
+    name: 'In Construction',
+    cards: [
+      {
+        code: 'PRJ-201',
+        title: 'State highway intersection upgrade',
+        location: 'Tauranga, Bay of Plenty',
+        description: 'Signalised intersection, kerb and channel, new pavement and lighting. Surfacing is done at night under traffic management.',
+        priority: 'urgent',
+        dueInDays: 2,
+        tags: ['roads', 'safety'],
+        assignees: ['hemi', 'sophie'],
+      },
+      {
+        code: 'PRJ-204',
+        title: 'Reservoir and trunk watermain',
+        location: 'Invercargill, Southland',
+        description: 'New 5 ML concrete reservoir and 2.4 km of trunk watermain.',
+        priority: 'high',
+        dueInDays: 10,
+        tags: ['water'],
+        assignees: ['liam'],
+      },
+      {
+        code: 'PRJ-206',
+        title: 'Slip repair and retaining wall',
+        location: 'Gisborne, Tairāwhiti',
+        description:
+          'Soldier pile wall and drainage to reinstate a storm-damaged road. Critical risk: plant working near an unstable slope.',
         priority: 'urgent',
         dueInDays: -1,
-        tags: ['bug', 'backend'],
-        assignees: ['sam'],
+        tags: ['earthworks', 'roads', 'safety'],
+        assignees: ['sophie'],
       },
     ],
   },
   {
-    name: 'Review',
+    name: 'Practical Completion',
     cards: [
       {
-        code: 'PRJ-102',
-        title: 'Design system v2',
-        description: 'Tokens, typography scale and a shared component library.',
+        code: 'PRJ-198',
+        title: 'Road resurfacing programme',
+        location: 'Auckland',
+        description: 'Chip seal and asphalt resurfacing across 18 sites. Defects inspection and as-builts outstanding.',
         priority: 'high',
         dueInDays: 1,
-        tags: ['design', 'frontend'],
-        assignees: ['taylor'],
+        tags: ['maintenance', 'roads'],
+        assignees: ['hemi'],
       },
     ],
   },
   {
-    name: 'Done',
+    name: 'Closed Out',
     cards: [
       {
-        code: 'PRJ-101',
-        title: 'User interview synthesis',
+        code: 'PRJ-190',
+        title: 'Stormwater culvert renewal',
+        location: 'Lower Hutt, Wellington',
         priority: 'medium',
-        tags: ['research'],
-        assignees: ['jordan', 'sam'],
+        tags: ['water'],
+        assignees: ['liam', 'sophie'],
       },
       {
-        code: 'PRJ-103',
-        title: 'Public API documentation',
+        code: 'PRJ-185',
+        title: 'Cycleway and shared path',
+        location: 'Christchurch, Canterbury',
         priority: 'low',
-        tags: ['backend'],
-        assignees: ['alex'],
+        tags: ['roads'],
+        assignees: ['hemi'],
       },
     ],
   },
@@ -167,6 +182,7 @@ export function createSampleBoard(today: Date = new Date()): Board {
         createCard({
           code: sample.code,
           title: sample.title,
+          location: sample.location,
           description: sample.description ?? '',
           priority: sample.priority,
           dueDate: sample.dueInDays === undefined ? null : toIsoDate(addDays(today, sample.dueInDays)),
@@ -176,5 +192,5 @@ export function createSampleBoard(today: Date = new Date()): Board {
     ),
   }))
 
-  return { version: 1, title: 'Product Roadmap', columns, tags, members }
+  return { version: 2, title: 'Project Pipeline', columns, tags, members }
 }
