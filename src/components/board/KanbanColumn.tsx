@@ -52,11 +52,11 @@ export function KanbanColumn({
       aria-label={column.name}
       data-column-id={column.id}
       className={cn(
-        'group/col flex max-h-full w-72 shrink-0 flex-col rounded-xl border bg-white/[0.02] transition-colors',
+        'group/col flex max-h-full w-72 shrink-0 snap-start flex-col rounded-xl border bg-white/[0.02] transition-colors',
         isOver ? 'border-blue-500/30 bg-blue-500/[0.03]' : 'border-white/[0.06]',
       )}
     >
-      <header className="flex items-center justify-between gap-1 px-3 pt-3 pb-2">
+      <header className="flex items-center justify-between gap-1 px-3 pt-3 pb-2 pointer-coarse:pt-1 pointer-coarse:pb-0">
         {nameDraft !== null ? (
           <input
             autoFocus
@@ -69,14 +69,14 @@ export function KanbanColumn({
               if (e.key === 'Enter') commitName()
               if (e.key === 'Escape') setNameDraft(null)
             }}
-            className="w-full rounded border border-white/[0.15] bg-white/[0.06] px-2 py-0.5 text-sm font-medium text-zinc-200 outline-none"
+            className="tap-target w-full rounded border border-white/[0.15] bg-white/[0.06] px-2 py-0.5 text-sm font-medium text-zinc-200 outline-none"
           />
         ) : (
           <>
             <div className="flex min-w-0 items-center gap-2">
               <button
                 onClick={() => setNameDraft(column.name)}
-                className="truncate text-left text-sm font-medium text-zinc-300 transition-colors hover:text-white"
+                className="tap-target truncate text-left text-sm font-medium text-zinc-300 transition-colors hover:text-white"
                 title="Click to rename"
               >
                 {column.name}
@@ -88,7 +88,7 @@ export function KanbanColumn({
             <div className="flex shrink-0 items-center gap-0.5">
               <button
                 onClick={() => onDelete(column.id)}
-                className="flex h-6 w-6 items-center justify-center rounded text-zinc-600 opacity-0 transition-all group-hover/col:opacity-100 hover:bg-red-500/10 hover:text-red-400 focus-visible:opacity-100"
+                className="tap-target flex h-6 w-6 items-center justify-center rounded text-zinc-600 opacity-0 transition-all group-hover/col:opacity-100 hover:bg-red-500/10 hover:text-red-400 focus-visible:opacity-100 pointer-coarse:opacity-100"
                 title="Delete column"
                 aria-label={`Delete column ${column.name}`}
               >
@@ -104,7 +104,7 @@ export function KanbanColumn({
               </button>
               <button
                 onClick={() => setCardDraft('')}
-                className="flex h-6 w-6 items-center justify-center rounded text-lg leading-none text-zinc-500 transition-colors hover:bg-white/[0.06] hover:text-zinc-300"
+                className="tap-target flex h-6 w-6 items-center justify-center rounded text-lg leading-none text-zinc-500 transition-colors hover:bg-white/[0.06] hover:text-zinc-300"
                 title="Add card"
                 aria-label={`Add card to ${column.name}`}
               >
@@ -157,13 +157,13 @@ export function KanbanColumn({
               <button
                 onClick={commitCard}
                 disabled={!cardDraft.trim()}
-                className="rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-blue-500 disabled:opacity-50"
+                className="tap-target rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-blue-500 disabled:opacity-50"
               >
                 Add card
               </button>
               <button
                 onClick={() => setCardDraft(null)}
-                className="text-xs text-zinc-500 transition-colors hover:text-zinc-300"
+                className="tap-target text-xs text-zinc-500 transition-colors hover:text-zinc-300"
               >
                 Cancel
               </button>
@@ -176,7 +176,7 @@ export function KanbanColumn({
         <button
           onClick={() => setCardDraft('')}
           data-guide="add-card"
-          className="mx-2 mb-2 flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-xs text-zinc-600 transition-colors hover:bg-white/[0.04] hover:text-zinc-300"
+          className="tap-target mx-2 mb-2 flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-xs text-zinc-600 transition-colors hover:bg-white/[0.04] hover:text-zinc-300"
         >
           <span className="text-base leading-none">+</span> Add card
         </button>

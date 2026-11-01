@@ -300,7 +300,7 @@ export function OnboardingGuide({ board, tagsById, membersById, today, onClose }
               {!isLast && (
                 <button
                   onClick={onClose}
-                  className="rounded-lg px-2.5 py-1.5 text-xs text-zinc-500 transition-colors hover:text-zinc-300"
+                  className="tap-target rounded-lg px-2.5 py-1.5 text-xs text-zinc-500 transition-colors hover:text-zinc-300"
                 >
                   Skip
                 </button>
@@ -308,7 +308,7 @@ export function OnboardingGuide({ board, tagsById, membersById, today, onClose }
               {step > 0 && (
                 <button
                   onClick={() => setStep(s => s - 1)}
-                  className="rounded-lg px-3 py-1.5 text-sm text-zinc-300 transition-colors hover:bg-white/[0.06]"
+                  className="tap-target rounded-lg px-3 py-1.5 text-sm text-zinc-300 transition-colors hover:bg-white/[0.06]"
                 >
                   Back
                 </button>
@@ -316,7 +316,7 @@ export function OnboardingGuide({ board, tagsById, membersById, today, onClose }
               <button
                 autoFocus
                 onClick={() => (isLast ? onClose() : setStep(s => s + 1))}
-                className="rounded-lg bg-blue-600 px-3.5 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-500"
+                className="tap-target rounded-lg bg-blue-600 px-3.5 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-500"
               >
                 {isLast ? 'Got it' : 'Next'}
               </button>

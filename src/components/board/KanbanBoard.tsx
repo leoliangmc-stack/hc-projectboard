@@ -17,11 +17,13 @@ import {
 } from '@dnd-kit/core'
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 import { useBoard } from '@/hooks/useBoard'
+import { useTouchEdgePaging } from '@/hooks/useTouchEdgePaging'
 import { createCard, createId, findCard, nextCardCode } from '@/lib/board'
 import { toIsoDate } from '@/lib/dates'
 import { createSampleBoard } from '@/lib/sampleData'
 import { hasSeenGuide, markGuideSeen } from '@/lib/storage'
 import type { Board } from '@/lib/types'
+import { cn } from '@/lib/utils'
 import { BoardHeader } from './BoardHeader'
 import { CardDetailModal } from './CardDetailModal'
 import { KanbanColumn } from './KanbanColumn'
@@ -45,6 +47,15 @@ export function KanbanBoard() {
   // Board as it was when the drag started, restored if the drag is cancelled.
   const dragSnapshot = useRef<Board | null>(null)
 
+  const boardRef = useRef<HTMLDivElement>(null)
+  const edgePaging = useTouchEdgePaging(boardRef)
+  // Touch drags page the board one column at a time (see useTouchEdgePaging), so for them
+  // dnd-kit's own auto-scroll only scrolls inside a column, never the board sideways.
+  const autoScroll = useMemo(
+    () => ({ canScroll: (element: Element) => !(edgePaging.isActive() && element === boardRef.current) }),
+    [edgePaging],
+  )
+
   const tagsById = useMemo(() => new Map(board.tags.map(t => [t.id, t])), [board.tags])
   const membersById = useMemo(() => new Map(board.members.map(m => [m.id, m])), [board.members])
   const cardCount = board.columns.reduce((sum, c) => sum + c.cards.length, 0)
@@ -66,9 +77,10 @@ export function KanbanBoard() {
     return findCard(board, key)?.column.id ?? null
   }
 
-  function handleDragStart({ active }: DragStartEvent) {
+  function handleDragStart({ active, activatorEvent }: DragStartEvent) {
     dragSnapshot.current = board
     setActiveCardId(String(active.id))
+    if ('touches' in activatorEvent && activatorEvent.target) edgePaging.start(activatorEvent.target)
   }
 
   // Moving between columns happens while dragging, so the card previews in its new column.
@@ -95,6 +107,7 @@ export function KanbanBoard() {
     const snapshot = dragSnapshot.current
     dragSnapshot.current = null
     setActiveCardId(null)
+    edgePaging.stop()
 
     if (!over) {
       if (snapshot) dispatch({ type: 'replace', board: snapshot })
@@ -113,6 +126,7 @@ export function KanbanBoard() {
     if (dragSnapshot.current) dispatch({ type: 'replace', board: dragSnapshot.current })
     dragSnapshot.current = null
     setActiveCardId(null)
+    edgePaging.stop()
   }
 
   /** Screen-reader description of a drop target (a card's slot or a column). */
@@ -194,7 +208,7 @@ export function KanbanBoard() {
                 if (e.key === 'Enter') commitTitle()
                 if (e.key === 'Escape') setTitleDraft(null)
               }}
-              className="w-full max-w-sm rounded border border-white/[0.15] bg-white/[0.06] px-2 py-0.5 text-base font-semibold text-white outline-none"
+              className="tap-target w-full max-w-sm rounded border border-white/[0.15] bg-white/[0.06] px-2 py-0.5 text-base font-semibold text-white outline-none"
             />
           ) : (
             <div className="flex min-w-0 items-baseline gap-3">
@@ -202,7 +216,7 @@ export function KanbanBoard() {
                 <button
                   onClick={() => setTitleDraft(board.title)}
                   title="Click to rename"
-                  className="max-w-full truncate transition-colors hover:text-zinc-300"
+                  className="tap-target max-w-full truncate text-left transition-colors hover:text-zinc-300"
                 >
                   {board.title}
                 </button>
@@ -219,7 +233,7 @@ export function KanbanBoard() {
             <span className="hidden text-xs text-zinc-600 lg:inline">Changes are saved in this browser</span>
             <button
               onClick={() => setShowGuide(true)}
-              className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-white/[0.15] hover:text-white"
+              className="tap-target flex items-center gap-1.5 rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-white/[0.15] hover:text-white"
             >
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
                 <circle cx="6" cy="6" r="5.25" stroke="currentColor" strokeWidth="1.1" />
@@ -230,7 +244,7 @@ export function KanbanBoard() {
             </button>
             <button
               onClick={resetBoard}
-              className="rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-white/[0.15] hover:text-white"
+              className="tap-target rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-white/[0.15] hover:text-white"
             >
               Reset demo
             </button>
@@ -245,9 +259,18 @@ export function KanbanBoard() {
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
+        autoScroll={autoScroll}
         accessibility={{ announcements, screenReaderInstructions: { draggable: SCREEN_READER_INSTRUCTIONS } }}
       >
-        <div className="flex min-h-0 flex-1 items-start gap-4 overflow-x-auto p-6">
+        <div
+          ref={boardRef}
+          className={cn(
+            'flex min-h-0 flex-1 items-start gap-4 overflow-x-auto p-6 max-sm:scroll-px-6',
+            // On phones the board snaps to one column at a time. Snapping is off during a drag,
+            // where it would fight the scrolling that carries the card to another column.
+            !activeCardId && 'max-sm:snap-x max-sm:snap-mandatory',
+          )}
+        >
           {board.columns.map(column => (
             <KanbanColumn
               key={column.id}
@@ -263,7 +286,7 @@ export function KanbanBoard() {
           ))}
 
           {columnDraft !== null ? (
-            <div className="flex w-72 shrink-0 flex-col rounded-xl border border-white/[0.08] bg-white/[0.03] p-3">
+            <div className="flex w-72 shrink-0 snap-start flex-col rounded-xl border border-white/[0.08] bg-white/[0.03] p-3">
               <input
                 autoFocus
                 aria-label="Column name"
@@ -274,19 +297,19 @@ export function KanbanBoard() {
                   if (e.key === 'Escape') setColumnDraft(null)
                 }}
                 placeholder="Column name…"
-                className="mb-3 border-b border-white/[0.08] bg-transparent pb-2 text-sm text-zinc-200 placeholder-zinc-600 outline-none"
+                className="tap-target mb-3 border-b border-white/[0.08] bg-transparent pb-2 text-sm text-zinc-200 placeholder-zinc-600 outline-none"
               />
               <div className="flex gap-2">
                 <button
                   onClick={commitColumn}
                   disabled={!columnDraft.trim()}
-                  className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-blue-500 disabled:opacity-50"
+                  className="tap-target rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-blue-500 disabled:opacity-50"
                 >
                   Add column
                 </button>
                 <button
                   onClick={() => setColumnDraft(null)}
-                  className="text-xs text-zinc-500 transition-colors hover:text-zinc-300"
+                  className="tap-target text-xs text-zinc-500 transition-colors hover:text-zinc-300"
                 >
                   Cancel
                 </button>
@@ -295,7 +318,7 @@ export function KanbanBoard() {
           ) : (
             <button
               onClick={() => setColumnDraft('')}
-              className="flex w-72 shrink-0 items-center gap-2 rounded-xl border border-dashed border-white/[0.10] px-4 py-3 text-sm text-zinc-500 transition-colors hover:border-white/[0.20] hover:text-zinc-300"
+              className="flex w-72 shrink-0 snap-start items-center gap-2 rounded-xl border border-dashed border-white/[0.10] px-4 py-3 text-sm text-zinc-500 transition-colors hover:border-white/[0.20] hover:text-zinc-300"
             >
               <span className="text-lg leading-none">+</span>
               Add column
