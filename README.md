@@ -2,6 +2,8 @@
 
 A drag-and-drop kanban board for tracking projects. It runs entirely in the browser: there is no backend, and changes are saved to `localStorage`.
 
+**Live demo: [leo-projectboard.vercel.app](https://leo-projectboard.vercel.app/)**
+
 ![ProjectBoard screenshot](docs/screenshot.png)
 
 ## Features
@@ -59,5 +61,7 @@ During a drag, a card that crosses into another column is moved there immediatel
 ```
 
 ## Deployment
+
+The live demo is hosted on Vercel at [leo-projectboard.vercel.app](https://leo-projectboard.vercel.app/), and every push to `main` redeploys it.
 
 Since it's a static frontend, it deploys to [Vercel](https://vercel.com/new) with zero configuration. Import the repository and keep the default Next.js settings.
