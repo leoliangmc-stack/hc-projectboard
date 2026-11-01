@@ -6,7 +6,7 @@ import type { Board } from '@/lib/types'
 function makeBoard(): Board {
   const card = (id: string, code = '') => ({ ...createCard({ title: id.toUpperCase(), code }), id })
   return {
-    version: 1,
+    version: 2,
     title: 'Test',
     tags: [{ id: 't1', name: 'Design', color: '#000' }],
     members: [],
@@ -105,6 +105,7 @@ describe('createSampleBoard', () => {
     for (const card of cards) {
       expect(card.tagIds.every(id => tagIds.has(id))).toBe(true)
       expect(card.assigneeIds.every(id => memberIds.has(id))).toBe(true)
+      expect(card.location).not.toBe('')
       if (card.dueDate) expect(card.dueDate).toMatch(/^\d{4}-\d{2}-\d{2}$/)
     }
   })

@@ -131,6 +131,19 @@ export function CardDetailModal({ card, columnId, columns, tags, members, dispat
           </div>
 
           <div>
+            <label htmlFor="card-location" className={LABEL}>
+              Location
+            </label>
+            <input
+              id="card-location"
+              value={card.location}
+              onChange={e => update({ location: e.target.value })}
+              placeholder="Site or region"
+              className={FIELD}
+            />
+          </div>
+
+          <div>
             <label htmlFor="card-description" className={LABEL}>
               Description
             </label>

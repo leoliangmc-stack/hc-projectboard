@@ -18,6 +18,7 @@ export function createCard(fields: Partial<Card> & Pick<Card, 'title'>): Card {
   return {
     id: createId(),
     code: '',
+    location: '',
     description: '',
     priority: 'medium',
     dueDate: null,

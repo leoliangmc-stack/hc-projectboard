@@ -18,6 +18,8 @@ export interface Card {
   /** Short project reference shown on the card, e.g. "PRJ-104". */
   code: string
   title: string
+  /** Site or region, e.g. "Napier, Hawke's Bay". */
+  location: string
   description: string
   priority: Priority
   /** Local calendar date in YYYY-MM-DD format. */
@@ -34,7 +36,7 @@ export interface Column {
 }
 
 export interface Board {
-  version: 1
+  version: 2
   title: string
   columns: Column[]
   tags: Tag[]

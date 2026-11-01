@@ -1,15 +1,19 @@
 import type { Board } from './types'
 
 export const STORAGE_KEY = 'projectboard:board'
+export const STORAGE_VERSION = 2
 
-/** Parse a stored board, returning null for missing, corrupt or outdated data. */
+/**
+ * Parse a stored board, returning null for missing, corrupt or outdated data.
+ * Boards saved by an older schema version are discarded so the current sample data loads instead.
+ */
 export function parseStoredBoard(raw: string | null): Board | null {
   if (!raw) return null
   try {
     const value = JSON.parse(raw) as Partial<Board> | null
     if (
       !value ||
-      value.version !== 1 ||
+      value.version !== STORAGE_VERSION ||
       typeof value.title !== 'string' ||
       !Array.isArray(value.columns) ||
       !Array.isArray(value.tags) ||

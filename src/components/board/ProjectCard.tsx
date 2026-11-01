@@ -75,6 +75,16 @@ export function CardView({ card, tags, assignees, today, isOverlay }: CardViewPr
 
       <p className="text-sm leading-snug font-medium text-zinc-100">{card.title}</p>
 
+      {card.location && (
+        <p className="mt-1 flex items-center gap-1 text-[11px] text-zinc-400">
+          <svg className="h-3 w-3 shrink-0 text-zinc-500" viewBox="0 0 12 12" fill="none" aria-hidden>
+            <path d="M6 1a3.5 3.5 0 0 1 3.5 3.5C9.5 7.5 6 11 6 11S2.5 7.5 2.5 4.5A3.5 3.5 0 0 1 6 1z" stroke="currentColor" strokeWidth="1" />
+            <circle cx="6" cy="4.5" r="1" fill="currentColor" />
+          </svg>
+          <span className="truncate">{card.location}</span>
+        </p>
+      )}
+
       {card.description && (
         <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-zinc-500">{card.description}</p>
       )}
@@ -140,6 +150,7 @@ export function SortableCard({ onOpen, ...viewProps }: SortableCardProps) {
   return (
     <div
       ref={setNodeRef}
+      data-card-id={card.id}
       style={{ transform: CSS.Translate.toString(transform), transition }}
       {...attributes}
       {...listeners}
