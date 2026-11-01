@@ -43,3 +43,22 @@ export function saveBoard(board: Board): void {
     // Storage can be unavailable (private mode, quota exceeded) — the board still works in memory.
   }
 }
+
+const GUIDE_KEY = 'projectboard:guide-seen'
+
+/** Whether the first-visit guide has been shown (or skipped) in this browser. */
+export function hasSeenGuide(): boolean {
+  try {
+    return window.localStorage.getItem(GUIDE_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+export function markGuideSeen(): void {
+  try {
+    window.localStorage.setItem(GUIDE_KEY, '1')
+  } catch {
+    // Without storage the guide simply shows again next visit.
+  }
+}
